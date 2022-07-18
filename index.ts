@@ -8,16 +8,24 @@ import auth from 'basic-auth'; // https://www.taniarascia.com/basic-authenticati
 
 
 
+const passwordProtect = process.env.PROTECT ? true : false;
+const passwordProtect_Admin = { name: process.env.USERNAME || 'username', password: process.env.PASSWORD || 'password' };
+const passwordProtect_RealmName = process.env.REALM || 'Protected Area';
 
-const passwordProtect = false;
-const passwordProtect_Admin = { name: 'username', password: 'password' };
-const passwordProtect_RealmName = 'Protected Area';
 
-
-const webAndDav_UrlRoot = '/'; // express mount
+const webAndDav_UrlRoot = '/'; // express mount mount point, to host webdav's virtual root
 const webAndDav_RootDir = './upload'; // folder to use for nodejs
 
 
+const session_secret = process.env.SECRET || 'sa7h8g6fZGUBHKJNuh76g8ziuhGZ/ubdf#';
+
+
+const env_port = process.env.PORT || 1900;
+
+
+const paths = {
+
+}
 
 
 // init WebDav-Server
@@ -26,9 +34,14 @@ const server = new webdav.WebDAVServer({});
     // no protection here like in the webdav server docs
     // ... since we want to protext web and dav below
 
-    // add virtual folders to webdav virtual root, upload is possible
-    server.setFileSystem('/physicalFolder', new webdav.PhysicalFileSystem(webAndDav_RootDir), _ => { });
-    server.setFileSystem('/physicalFolder2', new webdav.PhysicalFileSystem(webAndDav_RootDir), _ => { });
+    // add folder to webdav virtual root AS root, upload is possible
+    server.setFileSystem(webAndDav_UrlRoot, new webdav.PhysicalFileSystem(webAndDav_RootDir), _ => { });
+
+    // add folder to webdav virtual root AS FOLDER -> web dav's virtual root does not need to be set to a folder - 
+    //  if browsed in a web browser, these folders will not show up unless they are added to serveIndex somehow
+    //server.setFileSystem('/physicalFolder1', new webdav.PhysicalFileSystem(webAndDav_RootDir), _ => { });
+    //server.setFileSystem('/physicalFolder2', new webdav.PhysicalFileSystem(webAndDav_RootDir), _ => { });
+
 
     // WebDAV-Server logging
     server.afterRequest((arg, next) => {
@@ -64,7 +77,7 @@ const webOrDav: express.Handler = function (req, res, next) {
     let broDet = BrowserDetector.parseUserAgent(req.headers['user-agent']);
 
     //* Note:
-    // all have no 'accept-language'
+    // all WebDAV requests have no 'accept-language'
     // Microsoft Explorer Win11: 'user-agent': 'Microsoft-WebDAV-MiniRedir/10.0.22000'
     // Apple OSX Finder: 'user-agent': 'WebDAVFS/3.0.0 (03008000) Darwin/21.5.0 (x86_64)',
     // Cyberduck: 'user-agent': 'Cyberduck/8.3.3.37544 (Mac OS X/12.4) (x86_64)'
@@ -84,8 +97,8 @@ const webOrDav: express.Handler = function (req, res, next) {
     }));
 
     if (isDav) {
+        // Cyberduck ...
         if (req.headers.authorization && req.headers.authorization.toLocaleLowerCase().indexOf('username="anonymous"') > -1) {
-            // Cyberduck ...
             delete req.headers.authorization;
         }
 
@@ -105,14 +118,14 @@ const app = express();
 {
     app.set('trust proxy', 1) // trust first proxy
     app.use(session({
-        secret: 'sa7h8g6fZGUBHKJNuh76g8ziuhGZ/ubdf#',
+        secret: session_secret,
         resave: false,
         saveUninitialized: true,
         cookie: { secure: true }
     }));
 }
 
-// simple password protection
+// simple password protection for web and dav
 // webdav-server has a really sophisticated one
 // if this block is disabled, webdav login is anonymous (guest option, username 'anonymous') with no password
 // BEFORE web or dav middleware
@@ -150,8 +163,8 @@ if (passwordProtect) {
 }
 
 // Start the Express server + webdav
-app.listen(1900);
-console.log('Listening: *:' + 1900);
+app.listen(env_port);
+console.log('Listening: *:' + env_port);
 
 // SSL:
 //   import https from 'https';
