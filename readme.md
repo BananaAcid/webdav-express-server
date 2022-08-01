@@ -6,11 +6,13 @@ webdav and express server with directory listing on same folder
 
 served folder: `./upload/`
 
+config folder: `./config/`
+
 extra web only folder: `./admin/`
 
  env:
 ```env
-# enables basic auth with password 
+# enables basic auth with password, enables admin and config/users.ts
 PROTECT=false
 # credentials
 USERNAME=username
@@ -20,5 +22,5 @@ REALM=Protected Area
 # cookie secret
 SECRET=sa7h8g6fZGUBHKJNuh76g8ziuhGZ/ubdf#
 # port for web and dav
-PORT=1900
+PORT=80
 ```

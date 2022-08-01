@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "build": "docker compose -f build_dockerfile.yaml build",
+    "test": "docker compose -f docker-compose.local-test.yaml up",
+    "export": "docker save -o webdav-express-server_v1.tar  bananaacid/webdav-express-server:v1",
+    "image:test": "docker compose -f docker-compose.image-test.yaml up",
+    "image:cli": "docker exec -it webdav-express-server /bin/sh"
+  }
+}

@@ -1,0 +1,31 @@
+version: '3'
+services:
+  webdav-express-server:
+    container_name: webdav-express-server
+
+    image: node:18-alpine
+    environment:
+      # log messages
+      - DEBUG=*
+      # session secret
+      - SECRET=sa7h8g6fZGUBHKJNuh76g8ziuhGZ/ubdf#
+      # - PROTECT= boolean -> 'false' -> enable password protection, enables admin and config/users.ts
+      # - USERNAME= string -> 'username' -> admin user username
+      # - PASSWORD= string -> 'password' -> admin user password
+      # - REALM= string -> 'Protected Area' -> login title
+      # - PORT= number -> '80'
+      - PROTECT=true
+    ports:
+      - '1900:80'
+    expose:
+      - '1900'
+    volumes:
+      # map project content to be used by the container
+      - ../:/home/node
+
+    working_dir: /home/node
+
+    restart: "no"
+    # restart: unless-stopped
+
+    command: "--loader ts-node/esm ./index.ts"

@@ -5,7 +5,12 @@ import session from 'express-session'; // http://expressjs.com/en/resources/midd
 import BrowserDetectorModule from 'browser-dtector'; // https://www.npmjs.com/package/browser-dtector
 const BrowserDetector = new BrowserDetectorModule();
 import auth from 'basic-auth'; // https://www.taniarascia.com/basic-authentication-for-an-express-node-app-htpasswd/
-
+import path from 'path';
+import debug from 'debug';
+const log = {
+    webdav: debug('app:webdav'),
+    express: debug('app:express'),
+};
 
 
 const passwordProtect = process.env.PROTECT ? true : false;
@@ -20,12 +25,10 @@ const webAndDav_RootDir = './upload'; // folder to use for nodejs
 const session_secret = process.env.SECRET || 'sa7h8g6fZGUBHKJNuh76g8ziuhGZ/ubdf#';
 
 
-const env_port = process.env.PORT || 1900;
+const env_port = process.env.PORT || 80;
 
 
-const paths = {
-
-}
+import users from './config/users';
 
 
 // init WebDav-Server
@@ -42,13 +45,12 @@ const server = new webdav.WebDAVServer({});
     //server.setFileSystem('/physicalFolder1', new webdav.PhysicalFileSystem(webAndDav_RootDir), _ => { });
     //server.setFileSystem('/physicalFolder2', new webdav.PhysicalFileSystem(webAndDav_RootDir), _ => { });
 
-
     // WebDAV-Server logging
     server.afterRequest((arg, next) => {
         // Display the method, the URI, the returned status code and the returned message
-        console.log('>>', arg.request.method, arg.requested.uri, '>', arg.response.statusCode, arg.response.statusMessage);
+        log.webdav('>>', arg.request.method, arg.requested.uri, '>', arg.response.statusCode, arg.response.statusMessage);
         // If available, display the body of the response
-        //console.log(arg.responseBody);
+        //log.webdav(arg.responseBody);
         next();
     });
 
@@ -88,7 +90,7 @@ const webOrDav: express.Handler = function (req, res, next) {
         ;
 
     // check indicators:
-    console.log(JSON.stringify({
+    log.express(JSON.stringify({
         isDav,
         name: broDet.name,            // this is the indicator (is '' if no known webbrowser)
         hasAccLang: 'accept-language' in req.headers,
@@ -116,7 +118,7 @@ const app = express();
 
 // Session - Cookies will NOT be send by WebDAV clients
 {
-    app.set('trust proxy', 1) // trust first proxy
+    app.set('trust proxy', 1); // trust first proxy
     app.use(session({
         secret: session_secret,
         resave: false,
@@ -132,8 +134,21 @@ const app = express();
 if (passwordProtect) {
 
     app.use((req, res, next) => {
-        var user = auth(req)
-        if (!user || !passwordProtect_Admin.name || passwordProtect_Admin.password !== user.pass) {  // user validation
+        var user = auth(req);
+
+        // @ts-ignore
+        req.user = user;
+
+        let is403 = !user;
+        log.express('is403:1', is403);
+        is403 = is403 || !(passwordProtect_Admin.name && passwordProtect_Admin.password === user?.pass);
+        log.express('is403:2', is403);
+        if (user && users[user.name]) {
+            is403 = users[user.name].password !== user.pass;
+        }
+        log.express('is403:3', is403);
+
+        if (is403) {  // user validation
             res.set('WWW-Authenticate', 'Basic realm="' + passwordProtect_RealmName + '"');
             return res.status(401).send('<p>401 Unauthorized</p><p>No valid authorisation. <button onclick="location.reload();">retry</button></p>'); // invalid authorisation: block connection
         }
@@ -164,7 +179,7 @@ if (passwordProtect) {
 
 // Start the Express server + webdav
 app.listen(env_port);
-console.log('Listening: *:' + env_port);
+log.express('Listening: *:' + env_port);
 
 // SSL:
 //   import https from 'https';

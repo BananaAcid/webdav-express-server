@@ -1,0 +1,8 @@
+version: '3'
+services:
+  webdav-express-server:
+    container_name: webdav-express-server
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    image: bananaacid/webdav-express-server:v1
