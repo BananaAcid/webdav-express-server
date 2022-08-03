@@ -1,9 +1,15 @@
 {
   "scripts": {
+    "test:withoutimage": "docker compose -f docker-compose.local-test.yaml up",
+    "---": "",
     "build": "docker compose -f build_dockerfile.yaml build",
-    "test": "docker compose -f docker-compose.local-test.yaml up",
-    "export": "docker save -o webdav-express-server_v1.tar  bananaacid/webdav-express-server:v1",
-    "image:test": "docker compose -f docker-compose.image-test.yaml up",
-    "image:cli": "docker exec -it webdav-express-server /bin/sh"
+    "test": "docker compose -f docker-compose.image-test.yaml up",
+    "cli": "docker exec -it webdav-express-server /bin/sh",
+    "export": "docker save -o webdav-express-server.tar  bananaacid/webdav-express-server",
+    "----": "",
+    "publish": "npm run publish:login && npm run publish:tag && npm run publish:push",
+    "publish:login": "docker login",
+    "publish:tag": "#docker tag webdav-express-server bananaacid/webdav-express-server",
+    "publish:push": "docker push bananaacid/webdav-express-server"
   }
 }
