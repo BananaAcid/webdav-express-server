@@ -21,7 +21,7 @@ docker container:  `./docker`
 
 ## env:
 ```env
-# enables basic auth with password, enables admin and config/users.ts
+# enables basic auth with password, enables admin and config/users.json
 PROTECT=false
 # credentials
 USERNAME=username
