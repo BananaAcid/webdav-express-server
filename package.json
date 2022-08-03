@@ -2,7 +2,7 @@
   "name": "webdav-express-server-ts",
   "version": "1.0.0",
   "description": "webdav and express server with directory listing example (working wiht mac and windows)",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "start": "node_modules/.bin/ts-node index.ts",
     "test": "node --loader ts-node/esm --inspect ./index.ts"

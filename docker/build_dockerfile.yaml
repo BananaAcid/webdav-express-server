@@ -3,6 +3,6 @@ services:
   webdav-express-server:
     container_name: webdav-express-server
     build:
-      context: ./
-      dockerfile: ./Dockerfile
+      context: ../
+      dockerfile: ./docker/Dockerfile
     image: bananaacid/webdav-express-server:v1

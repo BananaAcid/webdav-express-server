@@ -3,12 +3,14 @@ FROM node:18-alpine
 
 WORKDIR /home/node
 
-COPY ./. .
+COPY . .
 
-RUN npm install
 
-VOLUME /home/node/config
-VOLUME /home/node/upload
+RUN npm install && npm install ts-node
+ENV NODE_OPTIONS='--loader ts-node/esm' 
+
+#VOLUME ./config
+#VOLUME ./upload
 EXPOSE 80
 
-CMD [ "--loader ts-node/esm", "./index.ts" ]
+CMD [ "./index.ts" ]

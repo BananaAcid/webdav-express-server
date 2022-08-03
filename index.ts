@@ -5,7 +5,6 @@ import session from 'express-session'; // http://expressjs.com/en/resources/midd
 import BrowserDetectorModule from 'browser-dtector'; // https://www.npmjs.com/package/browser-dtector
 const BrowserDetector = new BrowserDetectorModule();
 import auth from 'basic-auth'; // https://www.taniarascia.com/basic-authentication-for-an-express-node-app-htpasswd/
-import path from 'path';
 import debug from 'debug';
 const log = {
     webdav: debug('app:webdav'),
@@ -28,7 +27,7 @@ const session_secret = process.env.SECRET || 'sa7h8g6fZGUBHKJNuh76g8ziuhGZ/ubdf#
 const env_port = process.env.PORT || 80;
 
 
-import users from './config/users';
+import users from './users.loader';
 
 
 // init WebDav-Server

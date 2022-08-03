@@ -3,7 +3,7 @@ services:
   webdav-express-server:
     container_name: webdav-express-server
 
-    image: bananaacid/webdav-express-server:latest
+    image: bananaacid/webdav-express-server:v1
     environment:
       # log messages
       - DEBUG=*
@@ -20,9 +20,9 @@ services:
       - '1900'
     volumes:
       # the config folder
-      - config:/home/node/config
+      - ./test/config:/home/node/config
       # the upload folder
-      - upload:/home/node/upload
+      - ./test/upload:/home/node/upload
 
     working_dir: /home/node
 
