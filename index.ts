@@ -12,7 +12,7 @@ const log = {
 };
 
 
-const passwordProtect = process.env.PROTECT ? true : false;
+const passwordProtect = process.env.PROTECT?.toLowerCase() === 'true' ? true : false;
 const passwordProtect_Admin = { name: process.env.USERNAME || 'username', password: process.env.PASSWORD || 'password' };
 const passwordProtect_RealmName = process.env.REALM || 'Protected Area';
 
